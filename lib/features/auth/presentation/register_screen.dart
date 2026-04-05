@@ -1,162 +1,183 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../logic/auth_controller.dart';
-import 'login_screen.dart'; // Import untuk navigasi balik
+import 'package:soulvie_app/common/app_colors.dart';
+import 'package:soulvie_app/component/header/auth_header.dart';
+import 'package:soulvie_app/component/text_field/auth_text_field.dart';
 
-class RegisterScreen extends ConsumerStatefulWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends ConsumerState<RegisterScreen> {
-  // 1. Controller untuk setiap input
-  final _fullNameController = TextEditingController();
-  final _usernameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
+class _RegisterScreenState extends State<RegisterScreen> {
+  // 1. Inisialisasi semua controller sesuai permintaan
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
+  bool _isPasswordVisible = false;
+
+  // 2. Jangan lupa dispose SEMUA controller
   @override
   void dispose() {
     _fullNameController.dispose();
     _usernameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authControllerProvider);
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Buat Akun Soulvia')),
+      backgroundColor: const Color(0xFFF9F9F9),
       body: SingleChildScrollView(
-        // Agar tidak error saat keyboard muncul
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
+        child: Stack(
           children: [
-            // Input Fields
-            _buildTextField(_fullNameController, 'Nama Lengkap', Icons.person),
-            const SizedBox(height: 12),
-            _buildTextField(
-              _usernameController,
-              'Username',
-              Icons.alternate_email,
-            ),
-            const SizedBox(height: 12),
-            _buildTextField(
-              _emailController,
-              'Email',
-              Icons.email,
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 12),
-            _buildTextField(
-              _phoneController,
-              'No. Telp',
-              Icons.phone,
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 12),
-            _buildTextField(
-              _passwordController,
-              'Password',
-              Icons.lock,
-              obscureText: true,
-            ),
+            // Memanggil Header yang sudah dipisah
+            const AuthHeader(),
 
-            const SizedBox(height: 32),
-
-            // Tombol Daftar
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(
-                    0xFF009688,
-                  ), // Warna Teal Soulvia
-                  foregroundColor: Colors.white,
+            // Card Form Register
+            SafeArea(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: size.height * 0.20,
+                  left: 24.0,
+                  right: 24.0,
+                  bottom: 40.0, // Tambah padding bawah agar nyaman di-scroll
                 ),
-                onPressed: authState.isLoading ? null : _onRegister,
-                child: authState.isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'Daftar Sekarang',
-                        style: TextStyle(fontSize: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(24.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
                       ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // --- Kumpulan Text Field ---
+                      AuthTextField(
+                        label: 'Nama Lengkap',
+                        hintText: 'Masukkan nama lengkap',
+                        controller: _fullNameController,
+                      ),
+                      const SizedBox(height: 20),
+
+                      AuthTextField(
+                        label: 'Username',
+                        hintText: 'pandu123',
+                        controller: _usernameController,
+                      ),
+                      const SizedBox(height: 20),
+
+                      AuthTextField(
+                        label: 'Password',
+                        hintText: '***************',
+                        isPassword: !_isPasswordVisible,
+                        controller: _passwordController,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.grey,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
+                      ),
+
+                      // Lupa Password Dihapus, langsung beri jarak ke tombol
+                      const SizedBox(height: 40),
+
+                      // Tombol Daftar
+                      SizedBox(
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Mengambil nilai teks untuk validasi / API
+                            String inputFullName = _fullNameController.text;
+                            String inputUsername = _usernameController.text;
+                            String inputPassword = _passwordController.text;
+
+                            // Contoh validasi sederhana
+                            if (inputFullName.isEmpty ||
+                                inputUsername.isEmpty ||
+                                inputPassword.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Semua field harus diisi!'),
+                                ),
+                              );
+                              return;
+                            }
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            'Daftar',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Teks Pindah ke halaman Login
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Sudah mempunyai akun? ',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text(
+                              'Masuk',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Link ke Login
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Sudah punya akun? Masuk di sini'),
             ),
           ],
         ),
       ),
     );
-  }
-
-  // Helper widget untuk TextField agar kode tidak berantakan
-  Widget _buildTextField(
-    TextEditingController controller,
-    String label,
-    IconData icon, {
-    bool obscureText = false,
-    TextInputType? keyboardType,
-  }) {
-    return TextField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: const Color(0xFF009688)),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
-  // 2. Fungsi Logika Pendaftaran
-  void _onRegister() async {
-    // Tangkap navigator & messenger sebelum await (agar tidak ada garis biru)
-    final messenger = ScaffoldMessenger.of(context);
-    final navigator = Navigator.of(context);
-
-    await ref
-        .read(authControllerProvider.notifier)
-        .register(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-          username: _usernameController.text.trim(),
-          fullName: _fullNameController.text.trim(),
-          phone: _phoneController.text.trim(),
-        );
-
-    if (!mounted) return;
-
-    if (ref.read(authControllerProvider).hasError) {
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Pendaftaran Gagal! Cek kembali data Anda.'),
-        ),
-      );
-    } else {
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Berhasil Daftar! Silakan cek email konfirmasi.'),
-        ),
-      );
-      // Kembali ke halaman Login setelah sukses
-      navigator.pop();
-    }
   }
 }
