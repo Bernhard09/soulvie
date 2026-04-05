@@ -14,7 +14,16 @@ Future<Map<String, dynamic>> userProfile(ref) async {
       .from('profiles')
       .select()
       .eq('id', user.id)
-      .single();
-      
+      .maybeSingle();
+  
+  if (data == null) {
+    // Jika profil belum ada, kita kasih data default agar Dashboard tidak crash
+    return {
+      'full_name': 'User Baru',
+      'username': 'username',
+      'points': 0,
+    };
+  }
+
   return data;
 }
