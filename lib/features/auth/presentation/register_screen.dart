@@ -16,8 +16,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   // 4. LENGKAPI SEMUA CONTROLLER (Sesuai kebutuhan AuthController)
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController(); // Baru
-  final TextEditingController _phoneController = TextEditingController();    // Baru
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
@@ -27,7 +26,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _fullNameController.dispose();
     _usernameController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -127,6 +125,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       const SizedBox(height: 20),
 
+                      AuthTextField(
+                        label: 'Email',
+                        hintText: 'pandu@email.com',
+                        controller: _emailController,
+                      ),
+                      const SizedBox(height: 20),
+          
                       AuthTextField(
                         label: 'Password',
                         hintText: '***************',
