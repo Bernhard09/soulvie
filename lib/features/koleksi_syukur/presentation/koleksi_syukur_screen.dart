@@ -1,38 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:soulvie_app/common/app_colors.dart';
 import 'package:soulvie_app/component/syukur/gratitude_postcard.dart';
+import 'package:soulvie_app/features/koleksi_syukur/logic/koleksi_provider.dart';
+import 'package:soulvie_app/features/koleksi_syukur/presentation/buat_koleksi_syukur.dart';
 
 class KoleksiSyukurScreen extends ConsumerWidget {
   const KoleksiSyukurScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Data dummy menyesuaikan dengan desain Figma
-    final dummyPosts = [
-      {
-        'name': 'Pandu Revi Arnan',
-        'date': '01 Februari 2026',
-        'content':
-            'Hari ini aku bersyukur karena masih bisa tersenyum, membayar hutangku dengan lunas, dan bertemu teman SMA ku dulu',
-      },
-      {
-        'name': 'Pandu Revi Arnan',
-        'date': '25 Januari 2026',
-        'content':
-            'Akhirnya bisa pulang ke rumah tanpa macet, beli coffe dengan diskon, dan tidak perlu lembur malam ini',
-      },
-      {
-        'name': 'Pandu Revi Arnan',
-        'date': '29 Desember 2025',
-        'content': 'Senangnya bisa keterima kerja di perusahaan impianku...',
-      },
-      {
-        'name': 'Pandu Revi Arnan',
-        'date': '15 November 2025',
-        'content':
-            'Hari ini aku makan pizza favoritku\nAku menyelesaikan tugasku dengan baik\nAku bisa berkumpul kembali dengan keluargaku yang telah lama ldr',
-      },
-    ];
+    final semuaPostingan = ref.watch(koleksiControllerProvider);
+
+    // 2. Filter data khusus untuk tab "Disimpan"
+    final postinganDisimpan = semuaPostingan
+        .where((post) => post.isSaved)
+        .toList();
 
     // Bungkus Scaffold dengan DefaultTabController untuk fitur Tab
     return DefaultTabController(
@@ -141,34 +125,61 @@ class KoleksiSyukurScreen extends ConsumerWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  // Tab 1: Postingan mu
-                  ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 8,
-                    ),
-                    itemCount: dummyPosts.length,
-                    itemBuilder: (context, index) {
-                      final post = dummyPosts[index];
-                      return GratitudePostCard(
-                        name: post['name']!,
-                        date: post['date']!,
-                        content: post['content']!,
-                      );
-                    },
-                  ),
+                  // Tab 1: Postingan mu (Semua data)
+                  semuaPostingan.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'Belum ada postingan',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 8,
+                          ),
+                          itemCount: semuaPostingan.length,
+                          itemBuilder: (context, index) {
+                            return GratitudePostCard(
+                              post: semuaPostingan[index],
+                            );
+                          },
+                        ),
 
-                  // Tab 2: Disimpan (Dummy kosong dulu)
-                  const Center(
-                    child: Text(
-                      'Belum ada postingan yang disimpan',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ),
+                  // Tab 2: Disimpan (Data yang di-filter)
+                  postinganDisimpan.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'Belum ada postingan yang disimpan',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 8,
+                          ),
+                          itemCount: postinganDisimpan.length,
+                          itemBuilder: (context, index) {
+                            return GratitudePostCard(
+                              post: postinganDisimpan[index],
+                            );
+                          },
+                        ),
                 ],
               ),
             ),
           ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => BuatKoleksiScreen()),
+            );
+          },
+          backgroundColor: AppColors.primary,
+          child: Icon(Icons.add, color: AppColors.background),
         ),
       ),
     );

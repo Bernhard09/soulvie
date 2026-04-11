@@ -15,7 +15,7 @@ class ActivityGrid extends ConsumerWidget {
         'title': 'Meditasi',
         'color': Colors.blue.shade100,
         'image': 'meditation.jpg',
-        'screen': MeditationScreen(),
+        'screen': MeditasiScreen(),
       },
       {
         'id': 'moving',

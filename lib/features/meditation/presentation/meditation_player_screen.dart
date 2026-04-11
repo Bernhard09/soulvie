@@ -30,7 +30,7 @@ class _MeditasiPlayerScreenState extends State<MeditasiPlayerScreen> {
   // 2. Fungsi untuk mengatur audio
   Future<void> _setupAudio() async {
     // Membaca file dari folder assets/audio/
-    await _audioPlayer.setSource(AssetSource('audio/alanwalker.mp3'));
+    await _audioPlayer.setSource(AssetSource('audio/relaxation.mp3'));
 
     // Mendengarkan perubahan status (Play/Pause)
     _audioPlayer.onPlayerStateChanged.listen((state) {
