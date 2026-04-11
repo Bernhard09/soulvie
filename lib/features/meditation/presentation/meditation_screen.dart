@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:soulvie_app/common/app_colors.dart';
 import 'package:soulvie_app/features/meditation/presentation/meditation_player_screen.dart';
 
-class MeditasiScreen extends StatefulWidget {
+import 'package:soulvie_app/service/lifecycle_service.dart';
+
+class MeditasiScreen extends ConsumerStatefulWidget {
   const MeditasiScreen({Key? key}) : super(key: key);
 
   @override
-  State<MeditasiScreen> createState() => _MeditasiScreenState();
+  ConsumerState<MeditasiScreen> createState() => _MeditasiScreenState();
 }
 
-class _MeditasiScreenState extends State<MeditasiScreen> {
+class _MeditasiScreenState extends ConsumerState<MeditasiScreen> {
   // Variabel untuk menyimpan filter mana yang sedang diklik.
   // Default awalnya adalah "Semua"
   String _selectedFilter = "Semua";
@@ -122,6 +125,12 @@ class _MeditasiScreenState extends State<MeditasiScreen> {
                               const SizedBox(width: 16),
                               ElevatedButton(
                                 onPressed: () {
+                                  ref
+                                      .read(lifeCycleServiceProvider.notifier)
+                                      .updateActivity('meditation');
+                                  ref
+                                      .read(lifeCycleServiceProvider.notifier)
+                                      .addPoint();
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -208,6 +217,12 @@ class _MeditasiScreenState extends State<MeditasiScreen> {
                         // Membungkus Container dengan GestureDetector agar bisa diklik
                         child: GestureDetector(
                           onTap: () {
+                            ref
+                                .read(lifeCycleServiceProvider.notifier)
+                                .updateActivity('meditation');
+                            ref
+                                .read(lifeCycleServiceProvider.notifier)
+                                .addPoint();
                             // Logika untuk berpindah ke halaman player
                             Navigator.push(
                               context,

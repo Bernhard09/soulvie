@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:soulvie_app/service/lifecycle_service.dart';
 
 class CharacterCard extends ConsumerWidget {
   const CharacterCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final activity = ref.watch(lifeCycleServiceProvider);
     return Card(
       elevation: 0,
       color: Colors.white,
@@ -33,7 +35,7 @@ class CharacterCard extends ConsumerWidget {
                     Icon(Icons.pentagon, color: Colors.amber, size: 20),
                     SizedBox(width: 4),
                     Text(
-                      '5',
+                      activity['point'].toString(),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF00A79D),
@@ -74,9 +76,46 @@ class CharacterCard extends ConsumerWidget {
                 ),
 
                 // Karakter Terkunci 1
-                _buildLockedCharacter('40', 'kucing2.png'),
+                activity['point'] >= 40
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            // <--- ASSET PLACEHOLDER: Karakter Level 1 --->
+                            child: Image.asset('assets/images/kucing2.png'),
+                            // child: const Icon(Icons.pets, size: 50, color: Color(0xFF00A79D)),
+                          ),
+                        ],
+                      )
+                    : _buildLockedCharacter('40', 'kucing2.png'),
+
                 // Karakter Terkunci 2
-                _buildLockedCharacter('80', 'kucing3.png'),
+                activity['point'] >= 80
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            // <--- ASSET PLACEHOLDER: Karakter Level 1 --->
+                            child: Image.asset('assets/images/kucing3.png'),
+                            // child: const Icon(Icons.pets, size: 50, color: Color(0xFF00A79D)),
+                          ),
+                        ],
+                      )
+                    : _buildLockedCharacter('80', 'kucing3.png'),
               ],
             ),
           ],

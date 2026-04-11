@@ -4,12 +4,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:soulvie_app/component/activity_menu/activity_grid.dart';
 import 'package:soulvie_app/component/activity_menu/character_card.dart';
 import 'package:soulvie_app/component/activity_menu/history_list.dart';
+import 'package:soulvie_app/service/lifecycle_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ActivityScreen extends ConsumerWidget {
+class ActivityScreen extends ConsumerStatefulWidget {
   const ActivityScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ActivityScreen> createState() => _ActivityScreenState();
+}
+
+class _ActivityScreenState extends ConsumerState<ActivityScreen> {
+  final _supabase = Supabase.instance.client;
+  String? _username = null;
+  String? _avatarUrl = null;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) return;
+
+      final data = await _supabase
+          .from('profiles')
+          .select()
+          .eq('id', user.id)
+          .single();
+
+      setState(() {
+        _username = data['full_name'].split(' ')[0] ?? 'User Soulvia';
+        _avatarUrl = data['avatar_url'];
+      });
+    } catch (e) {
+      print("Error ambil data: $e");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final activity = ref.watch(lifeCycleServiceProvider);
+
     return Scaffold(
       backgroundColor: const Color(
         0xFFF5F5F5,
@@ -37,8 +76,8 @@ class ActivityScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Haii, Pandu', // Nanti bisa diganti dinamis dari database
+                  Text(
+                    'Haii, $_username', // Nanti bisa diganti dinamis dari database
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 28,
@@ -52,9 +91,17 @@ class ActivityScreen extends ConsumerWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2),
                       color: Colors.grey.shade300,
+                      image: _avatarUrl != null
+                          ? DecorationImage(
+                              image: NetworkImage(_avatarUrl!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
                     ),
                     // <--- ASSET PLACEHOLDER: Foto Profil --->
-                    child: const Icon(Icons.person, color: Colors.grey),
+                    child: _avatarUrl == null
+                        ? Icon(Icons.person, color: Colors.grey)
+                        : null,
                   ),
                 ],
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:soulvie_app/features/activity/activity_menu/presentation/activity_screen.dart';
+import 'package:soulvie_app/service/lifecycle_service.dart';
 
 import '../logic/mood_controller.dart';
 import '../logic/profile_provider.dart';
@@ -15,6 +16,8 @@ class DashboardScreen extends ConsumerWidget {
 
     // Mengambil tinggi status bar (poni/kamera HP)
     final topPadding = MediaQuery.of(context).padding.top;
+
+    final statusAktivitas = ref.watch(lifeCycleServiceProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -80,17 +83,21 @@ class DashboardScreen extends ConsumerWidget {
                     height: 24,
                   ), // Jarak yang pas agar tidak dempet
                   // KALENDER / STREAK
-                  _buildCalendarRow(primaryTeal),
+                  _buildCalendarRow(primaryTeal, statusAktivitas['complete']),
 
                   const SizedBox(height: 24),
 
                   // STATUS CARD (Depresi Normal)
-                  _buildStatusCard(primaryTeal, context),
+                  _buildStatusCard(
+                    primaryTeal,
+                    context,
+                    statusAktivitas['health'],
+                  ),
 
                   const SizedBox(height: 24),
 
                   // AKTIVITAS HARIAN (Desain yang Bagus Dikembalikan)
-                  _buildDailyActivities(primaryTeal),
+                  _buildDailyActivities(primaryTeal, statusAktivitas),
 
                   const SizedBox(height: 40),
                 ],
@@ -153,35 +160,35 @@ class DashboardScreen extends ConsumerWidget {
                   );
 
                   // Bungkus dengan try-catch
-                  try {
-                    // Panggil fungsi provider
-                    await ref
-                        .read(moodControllerProvider.notifier)
-                        .saveMood(moodScore, mood['label']!);
+                  // try {
+                  //   // Panggil fungsi provider
+                  //   await ref
+                  //       .read(moodControllerProvider.notifier)
+                  //       .saveMood(moodScore, mood['label']!);
 
-                    // Jika berhasil, muncul SnackBar Hijau
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Mood "${mood['label']}" berhasil dicatat! ✨',
-                          ),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    // Jika GAGAL, muncul SnackBar Merah berisi pesan error aslinya
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Gagal menyimpan: $e'),
-                          backgroundColor: Colors.red,
-                          duration: const Duration(seconds: 4),
-                        ),
-                      );
-                    }
-                  }
+                  //   // Jika berhasil, muncul SnackBar Hijau
+                  //   if (context.mounted) {
+                  //     ScaffoldMessenger.of(context).showSnackBar(
+                  //       SnackBar(
+                  //         content: Text(
+                  //           'Mood "${mood['label']}" berhasil dicatat! ✨',
+                  //         ),
+                  //         backgroundColor: Colors.green,
+                  //       ),
+                  //     );
+                  //   }
+                  // } catch (e) {
+                  //   // Jika GAGAL, muncul SnackBar Merah berisi pesan error aslinya
+                  //   if (context.mounted) {
+                  //     ScaffoldMessenger.of(context).showSnackBar(
+                  //       SnackBar(
+                  //         content: Text('Gagal menyimpan: $e'),
+                  //         backgroundColor: Colors.red,
+                  //         duration: const Duration(seconds: 4),
+                  //       ),
+                  //     );
+                  //   }
+                  // }
                 },
                 child: Column(
                   children: [
@@ -214,11 +221,11 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCalendarRow(Color primaryTeal) {
+  Widget _buildCalendarRow(Color primaryTeal, bool isComplete) {
     final days = [
       {'day': 'Sen', 'date': '18', 'active': false, 'fire': true},
       {'day': 'Sel', 'date': '19', 'active': false, 'fire': true},
-      {'day': 'Rab', 'date': '20', 'active': true, 'fire': false},
+      {'day': 'Rab', 'date': '20', 'active': true, 'fire': isComplete},
       {'day': 'Kam', 'date': '21', 'active': false, 'fire': false},
       {'day': 'Jum', 'date': '22', 'active': false, 'fire': false},
       {'day': 'Sab', 'date': '23', 'active': false, 'fire': false},
@@ -305,7 +312,11 @@ class DashboardScreen extends ConsumerWidget {
   //   );
   // }
 
-  Widget _buildStatusCard(Color primaryTeal, BuildContext context) {
+  Widget _buildStatusCard(
+    Color primaryTeal,
+    BuildContext context,
+    String? health,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       width: double.infinity,
@@ -317,8 +328,8 @@ class DashboardScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Depresi Normal",
+          Text(
+            health ?? 'Depresi Normal',
             style: TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -351,31 +362,35 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDailyActivities(Color primaryTeal) {
+  Widget _buildDailyActivities(Color primaryTeal, Map status) {
     final List<Map<String, dynamic>> activities = [
       {
+        'id': 'meditation',
         'title': 'Meditasi',
         'subtitle': 'Kembalikan mood dengan meditasi',
         'icon': Icons.self_improvement,
-        'isDone': false,
+        'isDone': status['meditation'],
       },
       {
-        'title': 'Peregangan',
+        'id': "move_detection",
+        'title': 'Move Detection',
         'subtitle': 'Mulai peregangan hari ini!',
         'icon': Icons.accessibility_new,
-        'isDone': false,
+        'isDone': status['move_detection'],
       },
       {
+        'id': 'koleksi_syukur',
         'title': 'Koleksi Syukur',
         'subtitle': 'Tuliskan hal yang kamu syukuri',
         'icon': Icons.auto_awesome,
-        'isDone': false,
+        'isDone': status['koleksi_syukur'],
       },
       {
+        'id': 'mind_sorting',
         'title': 'Mind Sorting',
         'subtitle': 'Rapikan pikiranmu sekarang',
         'icon': Icons.psychology,
-        'isDone': false,
+        'isDone': status['mind_sorting'],
       },
     ];
 

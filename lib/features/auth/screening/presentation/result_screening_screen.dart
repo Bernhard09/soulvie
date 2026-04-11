@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:soulvie_app/common/app_colors.dart';
 import 'package:soulvie_app/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:soulvie_app/features/main_screen/presentation/main_screen.dart';
+import 'package:soulvie_app/service/lifecycle_service.dart';
 
-class ResultScreen extends StatefulWidget {
+class ResultScreen extends ConsumerStatefulWidget {
   final String testResult;
 
   const ResultScreen({super.key, required this.testResult});
 
   @override
-  State<ResultScreen> createState() => _ResultScreenState();
+  ConsumerState<ResultScreen> createState() => _ResultScreenState();
 }
 
-class _ResultScreenState extends State<ResultScreen> {
+class _ResultScreenState extends ConsumerState<ResultScreen> {
   // State untuk mengontrol apakah card aktivitas sedang terbuka atau tertutup
   bool _isExpanded = true;
 
   @override
   Widget build(BuildContext context) {
+    ref.read(lifeCycleServiceProvider.notifier).updateHealth(widget.testResult);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -71,8 +75,7 @@ class _ResultScreenState extends State<ResultScreen> {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        const DashboardScreen(),
+                                    builder: (context) => const MainScreen(),
                                   ),
                                 );
                               },
@@ -183,7 +186,7 @@ class _ResultScreenState extends State<ResultScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: SvgPicture.asset(
-                                  'assets/images/ilustrasi_aktivitas.svg'
+                                  'assets/images/ilustrasi_aktivitas.svg',
                                 ),
                               ),
                             ),

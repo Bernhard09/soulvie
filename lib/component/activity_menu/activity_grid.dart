@@ -63,6 +63,8 @@ class ActivityGrid extends ConsumerWidget {
                 context,
                 MaterialPageRoute(builder: (_) => activity['screen'] as Widget),
               );
+
+
             },
             child: Column(
               children: [

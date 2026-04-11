@@ -1,13 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:soulvie_app/features/moving_detection/presentation/moving_detection_active_screen.dart'; // Pastikan package ini sudah di-import
+import 'package:soulvie_app/features/moving_detection/presentation/moving_detection_active_screen.dart';
+import 'package:soulvie_app/service/lifecycle_service.dart'; // Pastikan package ini sudah di-import
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class MovingDetectionScreen extends ConsumerWidget {
+class MovingDetectionScreen extends ConsumerStatefulWidget {
   const MovingDetectionScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MovingDetectionScreen> createState() =>
+      _MovingDetectionScreenState();
+}
+
+class _MovingDetectionScreenState extends ConsumerState<MovingDetectionScreen> {
+  final _supabase = Supabase.instance.client;
+  String? _username = null;
+  String? _avatarUrl = null;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) return;
+
+      final data = await _supabase
+          .from('profiles')
+          .select()
+          .eq('id', user.id)
+          .single();
+
+      setState(() {
+        _username = data['full_name'] ?? 'User Soulvia';
+        _avatarUrl = data['avatar_url'];
+      });
+    } catch (e) {
+      print("Error ambil data: $e");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(
         0xFFF5F5F5,
@@ -82,13 +120,22 @@ class MovingDetectionScreen extends ConsumerWidget {
                               shape: BoxShape.circle,
                               color: Colors.grey.shade300,
                               border: Border.all(color: Colors.white, width: 4),
+                              image: _avatarUrl != null
+                                  ? DecorationImage(
+                                      image: NetworkImage(_avatarUrl!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
                             ),
+
                             // <--- Ganti Icon ini dengan SvgPicture/Image profil nanti --->
-                            child: const Icon(
-                              Icons.person,
-                              size: 50,
-                              color: Colors.grey,
-                            ),
+                            child: _avatarUrl == null
+                                ? Icon(
+                                    Icons.person,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  )
+                                : null,
                           ),
 
                           // Lencana Kamera Kecil
@@ -113,8 +160,8 @@ class MovingDetectionScreen extends ConsumerWidget {
                       const SizedBox(height: 12),
 
                       // Nama User
-                      const Text(
-                        'Pandu Revi Arnan',
+                      Text(
+                        _username ?? 'user',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -198,6 +245,12 @@ class MovingDetectionScreen extends ConsumerWidget {
                   elevation: 0,
                 ),
                 onPressed: () {
+                  ref
+                      .read(lifeCycleServiceProvider.notifier)
+                      .updateActivity('move_detection');
+
+                  ref.read(lifeCycleServiceProvider.notifier).addPoint();
+
                   // Aksi Tes Ulang
                   Navigator.push(
                     context,

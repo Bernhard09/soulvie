@@ -1,26 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'mood_controller.dart';
+part of 'lifecycle_service.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$moodControllerHash() => r'2d064bf540d562abf552b34ccd54704c2ec38775';
+String _$lifeCycleServiceHash() => r'38ab2a5ed06e5e3f340160fe2d4b4be8a3036c3a';
 
-/// See also [MoodController].
-@ProviderFor(MoodController)
-final moodControllerProvider =
-    AutoDisposeAsyncNotifierProvider<MoodController, void>.internal(
-      MoodController.new,
-      name: r'moodControllerProvider',
+/// See also [LifeCycleService].
+@ProviderFor(LifeCycleService)
+final lifeCycleServiceProvider =
+    NotifierProvider<LifeCycleService, Map<dynamic, dynamic>>.internal(
+      LifeCycleService.new,
+      name: r'lifeCycleServiceProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
           ? null
-          : _$moodControllerHash,
+          : _$lifeCycleServiceHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
-typedef _$MoodController = AutoDisposeAsyncNotifier<void>;
+typedef _$LifeCycleService = Notifier<Map<dynamic, dynamic>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

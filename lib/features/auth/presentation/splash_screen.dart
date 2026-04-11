@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:soulvie_app/features/auth/presentation/welcome_screen.dart';
 import 'package:soulvie_app/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:soulvie_app/features/main_screen/presentation/main_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:soulvie_app/common/app_colors.dart'; // Sesuaikan path-nya
 
@@ -49,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       // Token masih ada -> Arahkan ke WelcomeScreen (atau Home)
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()),
+        MaterialPageRoute(builder: (context) => const MainScreen()),
       );
     } else {
       Navigator.pushReplacement(

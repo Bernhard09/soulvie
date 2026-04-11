@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:soulvie_app/features/mindsorting/data/model/mind_card_model.dart';
+import 'package:soulvie_app/service/lifecycle_service.dart';
 
 // --- DATA MODEL UNTUK KARTU ---
 
-class MindSortingScreen extends StatefulWidget {
+class MindSortingScreen extends ConsumerStatefulWidget {
   const MindSortingScreen({Key? key}) : super(key: key);
 
   @override
-  State<MindSortingScreen> createState() => _MindSortingScreenState();
+  ConsumerState<MindSortingScreen> createState() => _MindSortingScreenState();
 }
 
-class _MindSortingScreenState extends State<MindSortingScreen> {
+class _MindSortingScreenState extends ConsumerState<MindSortingScreen> {
   // 1. STATE GAME
   int _score = 0;
   int _lives = 3;
@@ -133,7 +135,15 @@ class _MindSortingScreenState extends State<MindSortingScreen> {
                         Icons.arrow_back_ios,
                         color: Colors.white,
                       ),
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        ref
+                            .read(lifeCycleServiceProvider.notifier)
+                            .updateActivity('mind_sorting');
+
+                        ref.read(lifeCycleServiceProvider.notifier).addPoint();
+
+                        Navigator.pop(context);
+                      },
                     ),
                     const Text(
                       'Mind Sorting',

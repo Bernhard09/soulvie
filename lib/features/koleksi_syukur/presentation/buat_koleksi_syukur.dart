@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:soulvie_app/service/lifecycle_service.dart';
 
 import 'dart:io'; // Untuk membaca file lokal
 import 'package:image_picker/image_picker.dart'; // Package yang baru diinstall
@@ -262,6 +263,12 @@ class _BuatKoleksiScreenState extends ConsumerState<BuatKoleksiScreen> {
                           _contentController.text,
                           _selectedImages,
                         );
+
+                    ref
+                        .read(lifeCycleServiceProvider.notifier)
+                        .updateActivity('koleksi_syukur');
+
+                    ref.read(lifeCycleServiceProvider.notifier).addPoint();
 
                     // 2. Tampilkan pesan sukses dan kembali ke halaman sebelumnya
                     ScaffoldMessenger.of(context).showSnackBar(
